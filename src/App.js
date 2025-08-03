@@ -5,7 +5,6 @@ import Hero from './components/Hero';
 import HowItWorks from './components/HowItWorks';
 import Features from './components/Features';
 import ExampleIdeas from './components/ExampleIdeas';
-import Waitlist from './components/Waitlist';
 import Footer from './components/Footer';
 import SectionDivider from './components/SectionDivider';
 
@@ -14,6 +13,34 @@ function App() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [waitlistCount, setWaitlistCount] = useState(847);
+  const [countAnimation, setCountAnimation] = useState(false);
+
+  // Simulate real-time counter updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.7) { // 30% chance to increment
+        setWaitlistCount(prev => {
+          setCountAnimation(true);
+          setTimeout(() => setCountAnimation(false), 600);
+          return prev + 1;
+        });
+      }
+    }, 8000 + Math.random() * 12000); // Random interval between 8-20 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update counter when someone joins
+  useEffect(() => {
+    if (isSubmitted) {
+      setWaitlistCount(prev => {
+        setCountAnimation(true);
+        setTimeout(() => setCountAnimation(false), 600);
+        return prev + 1;
+      });
+    }
+  }, [isSubmitted]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,25 +114,25 @@ function App() {
   return (
     <>
       <Header />
-      <Hero />
+      <Hero
+        email={email}
+        setEmail={setEmail}
+        onSubmit={handleSubmit}
+        isSubmitted={isSubmitted}
+        isLoading={isLoading}
+        error={error}
+        waitlistCount={waitlistCount}
+        countAnimation={countAnimation}
+      />
       <SectionDivider variant="gradient" />
       <Features />
       <SectionDivider variant="minimal" />
       <HowItWorks />
       <SectionDivider variant="default" />
       <ExampleIdeas />
-      <SectionDivider variant="gradient" />
-      <Waitlist 
-        email={email} 
-        setEmail={setEmail} 
-        onSubmit={handleSubmit}
-        isSubmitted={isSubmitted}
-        isLoading={isLoading}
-        error={error}
-      />
       <Footer />
     </>
   );
 }
 
-export default App; 
+export default App;
