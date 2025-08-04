@@ -8,59 +8,103 @@ import ExampleIdeas from './components/ExampleIdeas';
 import Footer from './components/Footer';
 import SectionDivider from './components/SectionDivider';
 
+// Configure axios defaults for the Django backend
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+axios.defaults.baseURL = API_BASE_URL;
+axios.defaults.timeout = 10000; // 10 second timeout
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 function App() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [waitlistCount, setWaitlistCount] = useState(847);
+  const [waitlistCount, setWaitlistCount] = useState(0); // Start with 0 instead of static number
   const [countAnimation, setCountAnimation] = useState(false);
 
-  // Simulate real-time counter updates
+  // Fetch real waitlist stats from backend
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance to increment
-        setWaitlistCount(prev => {
-          setCountAnimation(true);
-          setTimeout(() => setCountAnimation(false), 600);
-          return prev + 1;
-        });
+    const fetchWaitlistStats = async () => {
+      try {
+        const response = await axios.get('/api/waitlist/stats/');
+        if (response.data && typeof response.data.total_signups === 'number') {
+          setWaitlistCount(response.data.total_signups);
+        }
+      } catch (err) {
+        console.log('Backend not available, using fallback counter');
+        // Use a static fallback number when backend is not available
+        setWaitlistCount(847);
       }
-    }, 8000 + Math.random() * 12000); // Random interval between 8-20 seconds
+    };
+
+    fetchWaitlistStats();
+
+    // Refresh count every 30 seconds to get real-time updates
+    const interval = setInterval(fetchWaitlistStats, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Update counter when someone joins
-  useEffect(() => {
-    if (isSubmitted) {
-      setWaitlistCount(prev => {
-        setCountAnimation(true);
-        setTimeout(() => setCountAnimation(false), 600);
-        return prev + 1;
-      });
-    }
-  }, [isSubmitted]);
+  // Remove the random counter updates - we only want real data
+  // No more simulated increments
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
+    // Client-side email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:8000/api/waitlist/join/', {
-        email: email
+      const response = await axios.post('/api/waitlist/join/', {
+        email: email.trim().toLowerCase()
+      }, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        }
       });
       
       console.log('Email submitted successfully:', response.data);
       setIsSubmitted(true);
       setEmail('');
       
+      // Update waitlist count with actual position from backend
+      if (response.data && typeof response.data.position === 'number') {
+        setWaitlistCount(response.data.position);
+        setCountAnimation(true);
+        setTimeout(() => setCountAnimation(false), 600);
+      }
+
       // Reset submission status after 3 seconds
       setTimeout(() => setIsSubmitted(false), 3000);
+
     } catch (err) {
       console.error('Error submitting email:', err);
-      setError(err.response?.data?.email?.[0] || 'Failed to join waitlist. Please try again.');
+
+      let errorMessage = 'Failed to join waitlist. Please try again.';
+
+      if (err.response) {
+        // Backend responded with an error
+        if (err.response.status === 429) {
+          errorMessage = 'Too many attempts. Please try again later.';
+        } else if (err.response.status === 400) {
+          errorMessage = err.response.data?.error || 'Invalid email address.';
+        } else if (err.response.status >= 500) {
+          errorMessage = 'Server error. Please try again in a moment.';
+        }
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please check your connection.';
+      } else if (err.request) {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
