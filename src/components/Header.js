@@ -37,7 +37,7 @@ const Header = () => {
             <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line`}></i>
           </button>
           
-          <button className="cta-button">Get Early Access</button>
+          <button className="cta-button">Waitlist</button>
         </div>
         
         {/* Mobile Navigation */}

@@ -7,7 +7,7 @@ const Waitlist = ({ email, setEmail, onSubmit, isSubmitted, isLoading, error }) 
         <div className="cta-glow"></div>
 
         <h2 className="scale-in">Ready to Build Something People Actually Want?</h2>
-        <p className="fade-in">Join thousands of developers who are discovering real user problems and building products that matter. Get early access today.</p>
+        <p className="fade-in">Join thousands of developers who are discovering real user problems and building products that matter. Waitlist.</p>
 
         <form onSubmit={onSubmit} className="final-waitlist-form scale-in">
           <div className="input-wrapper">

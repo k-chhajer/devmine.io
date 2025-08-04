@@ -40,7 +40,7 @@ const Hero = ({ email, setEmail, onSubmit, isSubmitted, isLoading, error, waitli
               className="waitlist-button"
             >
               <span className="button-text">
-                {isLoading ? 'Joining...' : isSubmitted ? 'Joined!' : 'Get Early Access'}
+                {isLoading ? 'Joining...' : isSubmitted ? 'Joined!' : 'Waitlist'}
               </span>
               {!isLoading && !isSubmitted && (
                 <i className="ri-arrow-right-line button-icon"></i>
