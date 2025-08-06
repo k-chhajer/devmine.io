@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import HowItWorks from './components/HowItWorks';
@@ -175,6 +176,7 @@ function App() {
       <SectionDivider variant="default" />
       <ExampleIdeas />
       <Footer />
+      <Analytics />
     </>
   );
 }
