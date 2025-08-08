@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: devmine-backend
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn devmine_backend.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,devmine.com,www.devmine.com"
+      - key: DB_ENGINE
+        value: django.db.backends.postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: devmine-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: devmine-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: devmine-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: devmine-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: devmine-db
+          property: port
+      - key: MAX_EMAILS_PER_IP
+        value: 10
+
+databases:
+  - name: devmine-db
+    plan: free 
