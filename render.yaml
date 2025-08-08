@@ -3,7 +3,7 @@ services:
     name: devmine-backend
     env: python
     plan: free
-    buildCommand: "./build.sh"
+    buildCommand: "./backend/build.sh"
     startCommand: "gunicorn devmine_backend.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
