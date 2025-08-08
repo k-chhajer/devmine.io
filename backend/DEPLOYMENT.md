@@ -22,7 +22,7 @@ Use these settings:
 
 - **Name**: `devmine-backend` (or your preferred name)
 - **Environment**: `Python 3`
-- **Build Command**: `./backend/build.sh`
+- **Build Command**: `./build.sh`
 - **Start Command**: `cd backend && gunicorn devmine_backend.wsgi:application`
 - **Plan**: Free
 
